@@ -1,5 +1,6 @@
 globals
-;; parameter space for the model is...
+;; ========================================== ONE WAY GREEN TRANSITION =======================================
+
 
 ;; to EquipmentDecision - Green / Black product with probability 0,5 see procedure code
 
@@ -57,10 +58,12 @@ to setup
   clear-all
   ask patches   [ set pcolor 67 ]
 
+  set p0 1                  ;; 28/08/25
   SetFirms
   ask turtles [ set label-color black ]
   set QD precision (W / p0) 0
   set QS sum [Qt] of firms with [inmarket]
+
   set QSBlack sum [Qt] of firms with [inmarket and ([cathegory] of product MyProductID) = "Black"]
 
   set QSTotal 0
@@ -69,7 +72,7 @@ to setup
   set SubsidyTotal 0
   set Emission 0
   set ETAXTotal 0
-  set p0 1
+  ;; set p0 1             ;; set as comment 28/08/25
 
   set GreenSales 0
   set BlackSales 0
@@ -80,16 +83,14 @@ to setup
                                            ask products with [owner = LWho] [die]
                                            die
                                           ]
-  show "setup done!"
+  output-show "setup done!"           ;; TO OUTPUT AREA AT INTERFACE TAB
   reset-ticks
 end
 ;;===========================================================================
 to go
 
-  ;;;;  SetPrices                  ;; TEST
+  ;;if (P0 - c1) < 0 or abs (P0 - c1) < 0.005 [output-show "NEGATIVE OR TOO SMALL P0 - C1 VALUE. STOP RUNNING" stop]  ;; 28/08/25
 
-
-;;                   =================== CHECKED CODE OF GO ===================
   Production
 
   ;;;;;; MultiPricesMarket              ;; TEST. INSTEAD  M-rule2
@@ -284,6 +285,7 @@ to ProfitLoss
 end
 ;;========================================================================= Add1Firm
 to Add1Firm
+  if (P0 - c1) < 0 or abs (P0 - c1) < 0.005 [output-show "NEGATIVE OR TOO SMALL P0 - C1 VALUE. STOP RUNNING" stop]  ;; 28/08/25
   create-ordered-firms 1
   [
     set size 2 set shape "person" ;;"building store"
@@ -292,6 +294,8 @@ to Add1Firm
     set color blue
 
     FirmsSettings
+
+
     set QM 0
     set Profit 0
     set ProfitCumulative 0
@@ -307,7 +311,11 @@ end
 to FirmsSettings                    ;; call from firm context !!!!!
   ;;set ACost CostPerMonth
   set ACost  max list (precision (random-normal CostPerMonth  CPMVariation) 1) 0
+
+  if (P0 - c1) < 0 or abs (P0 - c1) < 0.005 [output-show "NEGATIVE OR TOO SMALL P0 - C1 VALUE. STOP RUNNING" stop]  ;; 28/08/25
   set QBE precision (ACost / (P0 - c1)) 1
+
+
   set Qmax precision (Qmax/QBE * QBE) 0     ;; Qmax/QBE is slider name!!!!
   set Qt precision (Qt/Qmax * Qmax) 0       ;; Qt/Qmax is slider name!!!!
   set GreenTransition false                 ;; 20/08/25
@@ -420,9 +428,9 @@ ask firms with [inmarket]
                     [
                       set owner LWho set stock 0 set price p0        ;; NEW 22/07/25
 
-                    ifelse (random 100) < GreenProbability                     ;; slider OLD VERSION
+                    ;; ifelse (random 100) < GreenProbability                     ;; slider OLD VERSION
 
-                    ;; ifelse [GreenTransition] of firm Lwho                   ;; 20/08/25 INSTEAD ifelse (random 100) < GreenProbability
+                    ifelse [GreenTransition] of firm Lwho                   ;; 20/08/25 INSTEAD ifelse (random 100) < GreenProbability
 
                          [set cathegory "Green" set color green set size 2 ]                ;; NEW 10/08/25
                          [set cathegory "Black" set color gray  set size 2 ]               ;; NEW 10/08/25
@@ -582,8 +590,8 @@ SLIDER
 FirmsQty
 FirmsQty
 1
-20
-15.0
+30
+20.0
 1
 1
 NIL
@@ -677,7 +685,7 @@ P0
 P0
 1
 5
-1.051
+0.659
 1
 1
 NIL
@@ -714,10 +722,10 @@ NIL
 HORIZONTAL
 
 PLOT
-836
-203
-1036
-383
+840
+186
+1040
+366
 QS QD
 NIL
 NIL
@@ -733,10 +741,10 @@ PENS
 "pen-1" 1.0 0 -2674135 true "" "plot qd"
 
 MONITOR
-853
-157
-938
-202
+989
+125
+1074
+170
 QS (of firms)
 precision QS 0
 17
@@ -744,10 +752,10 @@ precision QS 0
 11
 
 MONITOR
-937
-157
-1005
-202
+1073
+125
+1141
+170
 NIL
 QD
 17
@@ -772,10 +780,10 @@ NIL
 1
 
 PLOT
-836
-386
-1036
-546
+841
+371
+1041
+550
 Price
 NIL
 NIL
@@ -792,10 +800,10 @@ PENS
 "pen-2" 1.0 0 -2674135 true "" "plot 1"
 
 PLOT
-448
-553
-627
-673
+470
+558
+668
+686
 TotalCumulativeProfit - Investments
 NIL
 NIL
@@ -840,10 +848,10 @@ count firms with [inmarket]
 11
 
 PLOT
-1046
-201
-1386
-544
+1045
+186
+1243
+366
 TaxTotal/CostOfClean/EcolTax
 NIL
 NIL
@@ -872,10 +880,10 @@ true false
 0
 
 PLOT
-829
-550
-1023
-676
+881
+558
+1079
+684
 Emission
 NIL
 NIL
@@ -899,7 +907,7 @@ CostPerMonth
 CostPerMonth
 500
 5000
-800.0
+500.0
 100
 1
 NIL
@@ -936,10 +944,10 @@ NIL
 HORIZONTAL
 
 PLOT
-640
-550
-828
-676
+677
+558
+873
+684
 mean [Resource]
 NIL
 NIL
@@ -964,10 +972,10 @@ Strategy
 0
 
 PLOT
-1027
-550
-1206
-676
+1088
+556
+1285
+682
 Product Stock
 NIL
 NIL
@@ -1014,7 +1022,7 @@ CHOOSER
 FirmValue
 FirmValue
 "Resource" "Qt" "Qbe" "QMax" "QM" "Strat" "CostPerMonth" "ProfitСumulative" "Last Month Profit"
-0
+5
 
 CHOOSER
 181
@@ -1024,7 +1032,7 @@ CHOOSER
 ProductValue
 ProductValue
 "Stock" "Price"
-0
+1
 
 CHOOSER
 179
@@ -1045,7 +1053,7 @@ SubsidyRate
 SubsidyRate
 0
 1
-0.5
+0.25
 .25
 1
 NIL
@@ -1100,7 +1108,7 @@ Qt/Qmax
 Qt/Qmax
 0.1
 1
-0.8
+0.5
 .1
 1
 NIL
@@ -1137,10 +1145,10 @@ NIL
 HORIZONTAL
 
 PLOT
-242
-553
-446
-673
+263
+559
+461
+685
 Inmarket Grn / Blck Profit
 NIL
 NIL
@@ -1156,10 +1164,10 @@ PENS
 "pen-1" 1.0 0 -16777216 true "" "plot BlackProfit"
 
 PLOT
-46
-554
-240
-674
+56
+558
+252
+685
 Green / Black Sales
 NIL
 NIL
@@ -1198,7 +1206,7 @@ EcoTAXRate
 EcoTAXRate
 0.5
 3
-1.5
+1.0
 .5
 1
 NIL
@@ -1213,11 +1221,18 @@ Duration
 Duration
 1
 26
-15.0
+26.0
 1
 1
 NIL
 HORIZONTAL
+
+OUTPUT
+1048
+372
+1284
+549
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
